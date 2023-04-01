@@ -35,6 +35,15 @@ app.get('/', async function(req, res) {
   res.send('success');
 })
 
+app.get('/smoke-test', async function(req, res) {
+  try {
+    await client.pushText(process.env.MY_ACCOUNT, 'test message');
+    res.send('success');
+  } catch (err) {
+    res.send(err);
+  }
+})
+
 // error handler
 app.use(function(err, req, res, next) {
   // set locals, only providing error in development
