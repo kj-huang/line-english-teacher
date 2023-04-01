@@ -36,7 +36,16 @@ app.get('/', async function(req, res) {
 })
 
 app.post('/webhook', async function(req, res) {
-  res.send('success');
+  const { body } = req;
+  const { events } = body;
+
+  if(events && events.length > 0){
+    await client.retrieveMessageContent(events[0].message.id).then((buffer) => {
+      console.log(buffer);
+    })
+  }
+
+  return res.send('success');
 })
 
 app.get('/smoke-test', async function(req, res) {
@@ -56,7 +65,7 @@ app.use(function(err, req, res, next) {
 
   // render the error page
   res.status(err.status || 500);
-  res.render('error');
+  res.send('error');
 });
 
 module.exports = app;
