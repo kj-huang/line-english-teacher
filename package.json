@@ -5,6 +5,7 @@
   "main": "app.js",
   "scripts": {
     "dev": "nodemon ./bin/www",
+    "start": "node ./bin/www",
     "test": "jest"
   },
   "repository": {

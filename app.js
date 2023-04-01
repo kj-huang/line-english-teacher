@@ -74,6 +74,11 @@ app.get('/smoke-test', async function(req, res) {
   }
 })
 
+app.get('/health', (req, res) => {
+  res.send('ok');
+});
+
+
 // error handler
 app.use(function(err, req, res, next) {
   // set locals, only providing error in development
