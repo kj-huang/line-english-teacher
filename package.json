@@ -25,7 +25,8 @@
     "express-session": "^1.17.3",
     "messaging-api-line": "^1.1.0",
     "morgan": "^1.10.0",
-    "nodemon": "^2.0.22"
+    "nodemon": "^2.0.22",
+    "openai": "^3.2.1"
   },
   "devDependencies": {
     "jest": "^29.5.0",
