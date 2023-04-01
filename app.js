@@ -10,7 +10,7 @@ const { LineClient } = require('messaging-api-line');
 const fs = require('fs');
 const { Configuration, OpenAIApi } = require("openai");
 const {spawn} = require('child_process');
-
+const gtts = require('node-gtts')('en');
 
 const configuration = new Configuration({
   apiKey: process.env.OPENAI_API_KEY,
@@ -61,6 +61,10 @@ app.post('/webhook', async function(req, res) {
   return res.send('success');
 })
 
+app.get('/return.wav', function(req, res) {
+  res.sendFile(path.join(__dirname, 'return.wav'));
+})
+
 app.get('/smoke-test', async function(req, res) {
   try {
     await client.pushText(process.env.MY_ACCOUNT, 'test message');
@@ -95,8 +99,9 @@ async function transcribe(filename) {
     const result = await openai.createTranscription(y, 'whisper-1');
 
     let improvement = await chatCorrector(result.data.text);
-    let beautify = `origin: ${result.data.text} \n\n improvement: ${improvement}`;
+    let beautify = `Origin: ${result.data.text} \n\nImprovement: ${improvement}`;
     await client.pushText(process.env.MY_ACCOUNT, beautify);
+    await sendVoiceMessage(improvement);
   });
 }
 
@@ -104,10 +109,26 @@ async function transcribe(filename) {
 async function chatCorrector (input){
   const completion = await openai.createCompletion({
     model: "text-davinci-003",
-    prompt: "I want you to act as an English teacher, spelling corrector and improver. Answer the corrected and improved version of my text, in English. I want you to replace my simplified A0-level words and sentences with more beautiful and elegant, upper level English words and sentences. Keep the meaning same, but make them more literary. I want you to only reply the correction, the improvements and nothing else, do not write explanations, the text is: \n\n" + input 
+    temperature: 0.8,
+    // prompt: "I want you to act as an English teacher, spelling corrector and improver. Answer the corrected and improved version of my text, in English. I want you to replace my simplified A0-level words and sentences with more beautiful and elegant, upper level English words and sentences. Keep the meaning same, but make them more literary. I want you to only reply the correction, the improvements and nothing else, do not write explanations, the text is: \n\n" + input 
+    prompt: "Correct this to standard English:\n\n" + input,
   });
   
-  return completion.data.choices[0].text;
+  console.log(completion.data.choices);
+  return completion.data.choices[0].text.trim();
 }
 
+
+ 
+async function sendVoiceMessage(text) {
+  const filepath = path.join(__dirname, 'return.wav');
+  gtts.save(filepath, text, async function() {
+    console.log('save done');
+
+    await client.pushAudio(process.env.MY_ACCOUNT, {
+      originalContentUrl: process.env.WEB_HOST + '/return.wav',
+      duration: 5000,
+    });
+  })
+}
 module.exports = app;
