@@ -1,3 +1,4 @@
+require('dotenv').config();
 const express = require('express');
 const path = require('path');
 const cookieParser = require('cookie-parser');
@@ -5,7 +6,12 @@ const logger = require('morgan');
 const session = require('express-session');
 const bodyParser = require('body-parser');
 const app = express();
+const { LineClient } = require('messaging-api-line');
 
+const client = new LineClient({
+  accessToken: process.env.LINE_CHANNEL_ACCESS_TOKEN,
+  channelSecret: process.env.LINE_CHANNEL_SECRET,
+});
 
 app.use(session({
     secret: '123',
@@ -24,14 +30,10 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended:true}));
 
-app.get('/', function(req, res) {
-  res.send('Hello World');
+app.get('/', async function(req, res) {
+  await client.pushText(process.env.MY_ACCOUNT, 'test message');
+  res.send('success');
 })
-
-// catch 404 and forward to error handler
-app.use(function(req, res, next) {
-  next(createError(404));
-});
 
 // error handler
 app.use(function(err, req, res, next) {
