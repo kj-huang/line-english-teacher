@@ -35,6 +35,10 @@ app.get('/', async function(req, res) {
   res.send('success');
 })
 
+app.post('/webhook', async function(req, res) {
+  res.send('success');
+})
+
 app.get('/smoke-test', async function(req, res) {
   try {
     await client.pushText(process.env.MY_ACCOUNT, 'test message');

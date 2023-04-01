@@ -7,5 +7,12 @@ describe('Smoke tests', () => {
 
     expect(response.statusCode).toBe(200);
     expect(response.text).toBe('success');
+  });
+
+  it('should check POST on /webhook route', async () => {
+    let response = await request(app).post('/webhook');
+
+    expect(response.statusCode).toBe(200);
+    expect(response.text).toBe('success');
   })
 })
