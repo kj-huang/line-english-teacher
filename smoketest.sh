@@ -15,8 +15,6 @@ curl http://localhost:3000/health-check
 # Check the exit code of the curl command
 if [ $? -eq 0 ]; then
   echo "\nSmoke test passed"
-  # Stop and remove the container
-  docker stop $(docker ps -q --filter ancestor=demo-line-teacher) && docker rm $(docker ps -aq --filter ancestor=demo-line-teacher)
 else
   echo "\nSmoke test failed"
   # Stop and remove the container

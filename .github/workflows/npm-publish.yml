@@ -30,9 +30,9 @@ jobs:
         port: 22
         script: |
           whoami
-          cd /home/ubuntu/metablox_blockchain_service
+          cd /home/ubuntu/line-english-teacher
           sudo git checkout main
           sudo git pull
-          sudo chmod +x deploy.sh
-          sudo sh deploy.sh
+          sudo chmod +x smoketest.sh
+          sudo sh smoketest.sh
           sudo git checkout -- .
