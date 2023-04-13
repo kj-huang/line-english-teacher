@@ -8,10 +8,4 @@ services:
     restart: unless-stopped
     ports:
       - "3000:3000"
-    volumes:
-      - app-data:/app
     command: npm start
-
-volumes:
-  app-data:
-    driver: local
