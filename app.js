@@ -10,6 +10,7 @@ const fs = require('fs');
 const { Configuration, OpenAIApi } = require("openai");
 const {spawn} = require('child_process');
 const gtts = require('node-gtts')('en');
+const { getAudioDurationInSeconds } = require('get-audio-duration');
 
 const configuration = new Configuration({
   apiKey: process.env.OPENAI_API_KEY,
@@ -53,8 +54,6 @@ app.get('/health-check', async function(req, res) {
 //POST webhook callback
 app.post('/webhook', async function(req, res) {
   const {events} = req.body;
-
-  // console.log(req.body.events);
 
   if(events && events.length > 0){
     await client.retrieveMessageContent(events[0].message.id).then(async(buffer) => {
@@ -102,13 +101,13 @@ async function chatCorrector (input){
 async function sendVoiceMessage(text) {
   const filepath = path.join(__dirname + '/public/', 'return.wav');
   console.log(filepath)
-  gtts.save(filepath, text, async function() {
-    console.log('save done');
-
-    await client.pushAudio(process.env.MY_ACCOUNT, {
-      originalContentUrl: process.env.WEB_HOST + '/public/return.wav',
-      duration: 5000,
-    });
+  gtts.save(filepath, text, function() {
+    getAudioDurationInSeconds(filepath).then(async (duration) => {
+      await client.pushAudio(process.env.MY_ACCOUNT, {
+        originalContentUrl: process.env.WEB_HOST + '/public/return.wav',
+        duration: duration * 1000,
+      });
+    })
   })
 }
 

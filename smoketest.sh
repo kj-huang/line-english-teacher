@@ -1,7 +1,8 @@
 #!/bin/bash
 
 # Build and run the Docker container with Docker Compose
-sudo docker-compose -f "docker-compose.yml" up -d --build --force-recreate
+docker-compose build --no-cache
+sudo docker-compose -f "docker-compose.yml" up -d
 
 # Wait for the container to start
 sleep 5
