@@ -43,7 +43,6 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended:true}));
 
 app.get('/', async function(req, res) {
-  await client.pushText(process.env.MY_ACCOUNT, 'test message');
   res.send('Hello World');
 })
 
