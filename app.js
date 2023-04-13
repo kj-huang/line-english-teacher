@@ -68,6 +68,7 @@ app.post('/webhook', async function(req, res) {
 })
 
 app.get('/return.wav', function(req, res) {
+  console.log(__dirname)
   res.sendFile(path.join(__dirname, 'return.wav'));
 })
 
