@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Stop container if exists
+docker stop $(docker ps -q --filter ancestor=demo-line-teacher) && docker rm $(docker ps -aq --filter ancestor=demo-line-teacher)
+
 # Build the Docker image
 docker build -t demo-line-teacher .
 
