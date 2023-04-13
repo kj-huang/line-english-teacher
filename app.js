@@ -38,7 +38,7 @@ app.use(logger('dev'));
 app.use(express.json({limit: '30mb'}));
 app.use(express.urlencoded({ extended: true ,limit: '30mb'}));
 app.use(cookieParser());
-app.use(express.static(path.join(__dirname, 'public')));
+app.use('/public', express.static(path.join(__dirname, 'public')))
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended:true}));
 
@@ -65,11 +65,6 @@ app.post('/webhook', async function(req, res) {
   }
 
   res.sendStatus(200);
-})
-
-app.get('/return', function(req, res) {
-  console.log(__dirname)
-  res.sendFile(path.join(__dirname, 'return.wav'));
 })
 
 async function transcribe(filename) {
@@ -105,12 +100,13 @@ async function chatCorrector (input){
 }
 
 async function sendVoiceMessage(text) {
-  const filepath = path.join(__dirname, 'return.wav');
+  const filepath = path.join(__dirname + '/public/', 'return.wav');
+  console.log(filepath)
   gtts.save(filepath, text, async function() {
     console.log('save done');
 
     await client.pushAudio(process.env.MY_ACCOUNT, {
-      originalContentUrl: process.env.WEB_HOST + '/return.wav',
+      originalContentUrl: process.env.WEB_HOST + '/public/return.wav',
       duration: 5000,
     });
   })

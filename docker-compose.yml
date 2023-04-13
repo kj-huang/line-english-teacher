@@ -8,4 +8,10 @@ services:
     restart: unless-stopped
     ports:
       - "3000:3000"
+    volumes:
+      - collected_static:/app/public/
     command: npm start
+
+
+volumes:
+  collected_static:

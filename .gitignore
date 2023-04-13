@@ -102,6 +102,4 @@ dist
 
 # TernJS port file
 .tern-port
-/return.wav
-/test.aac
-/test.mp3
+/public
