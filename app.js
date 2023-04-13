@@ -67,10 +67,10 @@ app.post('/webhook', async function(req, res) {
   res.sendStatus(200);
 })
 
-app.get('/return.wav', function(req, res) {
-  console.log(__dirname)
-  res.sendFile(path.join(__dirname, 'return.wav'));
-})
+// app.get('/return', function(req, res) {
+//   console.log(__dirname)
+//   res.sendFile(path.join(__dirname, 'return.wav'));
+// })
 
 async function transcribe(filename) {
   const openai = new OpenAIApi(configuration);
