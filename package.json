@@ -5,7 +5,8 @@
   "main": "app.js",
   "scripts": {
     "dev": "nodemon ./bin/www",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node ./bin/www",
+    "test": "jest"
   },
   "repository": {
     "type": "git",
@@ -25,6 +26,8 @@
     "express-session": "^1.17.3",
     "messaging-api-line": "^1.1.0",
     "morgan": "^1.10.0",
-    "nodemon": "^2.0.22"
+    "node-gtts": "^2.0.2",
+    "nodemon": "^2.0.22",
+    "openai": "^3.2.1"
   }
 }
