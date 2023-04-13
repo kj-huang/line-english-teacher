@@ -1,0 +1,17 @@
+version: "3"
+
+services:
+  node:
+    build: .
+    image: demo-line-teacher
+    container_name: demo-line-teacher
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    volumes:
+      - app-data:/app
+    command: npm start
+
+volumes:
+  app-data:
+    driver: local

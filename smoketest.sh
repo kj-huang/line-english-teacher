@@ -1,13 +1,7 @@
 #!/bin/bash
 
-# Stop any existing container with the same name
-docker stop demo-line-teacher || true
-
-# Build the Docker image
-docker build -t demo-line-teacher .
-
-# Run the Docker container with the --rm flag
-docker run --rm -d -p 3000:3000 --name demo-line-teacher demo-line-teacher
+# Build and run the Docker container with Docker Compose
+docker-compose up -d --build
 
 # Wait for the container to start
 sleep 5
@@ -17,10 +11,9 @@ curl http://localhost:3000/health-check
 
 # Check the exit code of the curl command
 if [ $? -eq 0 ]; then
-  echo "\nSmoke test passed"
+  echo "Smoke test passed"
 else
-  echo "\nSmoke test failed"
-  # Stop and remove the container
-  docker stop $(docker ps -q --filter ancestor=demo-line-teacher) && docker rm $(docker ps -aq --filter ancestor=demo-line-teacher)
+  echo "Smoke test failed"
+  docker-compose down
   exit 1
 fi
