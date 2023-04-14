@@ -8,7 +8,7 @@ sudo docker-compose -f "docker-compose.yml" up -d
 sleep 5
 
 # Run the smoke test
-curl http://localhost:3000/health-check
+curl http://localhost:3000/health
 
 # Check the exit code of the curl command
 if [ $? -eq 0 ]; then
