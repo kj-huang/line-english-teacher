@@ -68,7 +68,10 @@ app.post('/webhook', async function(req, res) {
   const allowed = await isAllowed(lineID);
   if (!allowed) {
     console.log(`Line ID ${lineID} is not allowed at this time.`);
-    await client.reply(events[0].replyToken, `Line ID ${lineID} is not allowed at this time.`);
+    await client.reply(events[0].replyToken, [
+      Line.createText(`Line ID ${lineID} is not allowed at this time.`),
+    ]);
+    
     return res.sendStatus(200);
   } else {
     if(events && events.length > 0 && !events[0].type == 'message'){
@@ -144,10 +147,8 @@ app.use(function(err, req, res, next) {
 
 // Function that checks if a Line ID is allowed
 async function isAllowed(lineID) {
-  console.log(lineID, process.env.MY_ACCOUNT)
-  if (lineID !== process.env.MY_ACCOUNT) {
-    // Disallow all Line IDs except 123
-    return false;
+  if (lineID === process.env.MY_ACCOUNT) {
+    return true;
   }
 
   try {
