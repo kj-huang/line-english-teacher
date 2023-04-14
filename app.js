@@ -66,15 +66,16 @@ app.post('/webhook', async function(req, res) {
 
   let lineID = events[0].source.userId;
   const allowed = await isAllowed(lineID);
+
   if (!allowed) {
     console.log(`Line ID ${lineID} is not allowed at this time.`);
     await client.reply(events[0].replyToken, [
       Line.createText(`Line ID ${lineID} is not allowed at this time.`),
     ]);
-    
+
     return res.sendStatus(200);
   } else {
-    if(events && events.length > 0 && !events[0].type == 'message'){
+    if(events && events.length > 0){
       await client.retrieveMessageContent(events[0].message.id).then(async(buffer) => {
         const buff = Buffer.from(buffer, 'base64');
         fs.writeFileSync('test.aac', buff);
