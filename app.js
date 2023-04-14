@@ -44,10 +44,10 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended:true}));
 
 app.get('/', async function(req, res) {
-  res.send('Hello World');
+  res.send('Live');
 })
 
-app.get('/health-check', async function(req, res) {
+app.get('/health', async function(req, res) {
   res.send('OK');
 })
 
