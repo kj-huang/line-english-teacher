@@ -11,6 +11,7 @@ const { Configuration, OpenAIApi } = require("openai");
 const {spawn} = require('child_process');
 const gtts = require('node-gtts')('en');
 const { getAudioDurationInSeconds } = require('get-audio-duration');
+const { RateLimiterMemory } = require('rate-limiter-flexible');
 
 const configuration = new Configuration({
   apiKey: process.env.OPENAI_API_KEY,
@@ -43,9 +44,17 @@ app.use('/public', express.static(path.join(__dirname, 'public')))
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended:true}));
 
+// Create a rate limiter object with a memory store
+const limiter = new RateLimiterMemory({
+  points: 1, // allow 1 point
+  duration: 86400, // per day (in seconds)
+});
+
 app.get('/', async function(req, res) {
   res.send('Live');
 })
+
+// This function is used to return 'OK' to the client when a GET request is sent to the '/health' endpoint.
 
 app.get('/health', async function(req, res) {
   res.send('OK');
@@ -55,15 +64,23 @@ app.get('/health', async function(req, res) {
 app.post('/webhook', async function(req, res) {
   const {events} = req.body;
 
-  if(events && events.length > 0){
-    await client.retrieveMessageContent(events[0].message.id).then(async(buffer) => {
-      const buff = Buffer.from(buffer, 'base64');
-      fs.writeFileSync('test.aac', buff);
-      await transcribe('test.aac');
-    });
+  let lineID = events[0].source.userId;
+  const allowed = await isAllowed(lineID);
+  if (!allowed) {
+    console.log(`Line ID ${lineID} is not allowed at this time.`);
+    await client.reply(events[0].replyToken, `Line ID ${lineID} is not allowed at this time.`);
+    return res.sendStatus(200);
+  } else {
+    if(events && events.length > 0 && !events[0].type == 'message'){
+      await client.retrieveMessageContent(events[0].message.id).then(async(buffer) => {
+        const buff = Buffer.from(buffer, 'base64');
+        fs.writeFileSync('test.aac', buff);
+        await transcribe('test.aac');
+      });
+    }
+  
+    return res.sendStatus(200);
   }
-
-  res.sendStatus(200);
 })
 
 async function transcribe(filename) {
@@ -122,5 +139,28 @@ app.use(function(err, req, res, next) {
   res.locals.message = err.message;
   res.locals.error = req.app.get('env') === 'development' ? err : {};
 });
+
+
+
+// Function that checks if a Line ID is allowed
+async function isAllowed(lineID) {
+  console.log(lineID, process.env.MY_ACCOUNT)
+  if (lineID !== process.env.MY_ACCOUNT) {
+    // Disallow all Line IDs except 123
+    return false;
+  }
+
+  try {
+    // Try to consume a point from the rate limiter
+    await limiter.consume(lineID);
+    return true; // Line ID is allowed
+  } catch (err) {
+    if (err instanceof Error && err.message === 'Too many requests') {
+      // Line ID has exceeded the rate limit
+      return false;
+    }
+    throw err; // re-throw unexpected error
+  }
+}
 
 module.exports = app;
