@@ -79,7 +79,7 @@ app.post('/webhook', async function(req, res) {
       await client.retrieveMessageContent(events[0].message.id).then(async(buffer) => {
         const buff = Buffer.from(buffer, 'base64');
         fs.writeFileSync('test.aac', buff);
-        await transcribe('test.aac');
+        await transcribe('test.aac', lineID);
       });
     }
   
@@ -87,7 +87,7 @@ app.post('/webhook', async function(req, res) {
   }
 })
 
-async function transcribe(filename) {
+async function transcribe(filename, lineID) {
   const openai = new OpenAIApi(configuration);
   const inputFile = fs.createReadStream(filename);
   const outputPath = filename.replace('.aac','.mp3');
@@ -102,8 +102,8 @@ async function transcribe(filename) {
     console.log(result.data.text)
     let improvement = await chatCorrector(result.data.text);
     let beautify = `Origin: ${result.data.text} \n\nImprovement: ${improvement}`;
-    await client.pushText(process.env.MY_ACCOUNT, beautify);
-    await sendVoiceMessage(improvement);
+    await client.pushText(lineID, beautify);
+    await sendVoiceMessage(improvement, lineID);
   });
 }
 
@@ -119,12 +119,12 @@ async function chatCorrector (input){
   return completion.data.choices[0].text.trim();
 }
 
-async function sendVoiceMessage(text) {
+async function sendVoiceMessage(text, lineID) {
   const filepath = path.join(__dirname + '/public/', 'return.wav');
   console.log(filepath)
   gtts.save(filepath, text, function() {
     getAudioDurationInSeconds(filepath).then(async (duration) => {
-      await client.pushAudio(process.env.MY_ACCOUNT, {
+      await client.pushAudio(lineID, {
         originalContentUrl: process.env.WEB_HOST + '/public/return.wav',
         duration: duration * 1000,
       });
