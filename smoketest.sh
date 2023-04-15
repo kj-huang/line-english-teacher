@@ -4,6 +4,13 @@
 docker-compose build --no-cache
 sudo docker-compose -f "docker-compose.yml" up -d
 
+
+#remove stopped container
+sudo docker container prune
+
+#removing only dangling images:
+sudo docker rmi $(docker images --filter "dangling=true" -q --no-trunc)
+
 # Wait for the container to start
 sleep 5
 
