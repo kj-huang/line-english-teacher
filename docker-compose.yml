@@ -11,7 +11,13 @@ services:
     volumes:
       - collected_static:/app/public/
     command: npm start
+    networks:
+      - shared_network
 
 
 volumes:
   collected_static:
+
+networks:
+  shared_network:
+    external: true
