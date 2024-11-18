@@ -161,23 +161,23 @@ app.use(function(err, req, res, next) {
 
 // Function that checks if a Line ID is allowed
 async function isAllowed(lineID) {
-  // if (lineID === process.env.MY_ACCOUNT) {
-  //   return true;
-  // }
+  if (lineID === process.env.MY_ACCOUNT) {
+    return true;
+  }
 
-  // try {
-  //   // Try to consume a point from the rate limiter
-  //   await limiter.consume(lineID);
-  //   return true; // Line ID is allowed
-  // } catch (err) {
-  //   if (err instanceof Error && err.message === 'Too many requests') {
-  //     // Line ID has exceeded the rate limit
-  //     return false;
-  //   }
-  //   throw err; // re-throw unexpected error
-  // }
+  try {
+    // Try to consume a point from the rate limiter
+    await limiter.consume(lineID);
+    return true; // Line ID is allowed
+  } catch (err) {
+    if (err instanceof Error && err.message === 'Too many requests') {
+      // Line ID has exceeded the rate limit
+      return false;
+    }
+    throw err; // re-throw unexpected error
+  }
 
-  return true;
+  // return true;
 }
 
 module.exports = app;
