@@ -77,7 +77,7 @@ app.post("/webhook", async function (req, res) {
   if (!allowed) {
     console.log(`Line ID ${lineID} is not allowed at this time.`);
     await client.reply(events[0].replyToken, [
-      Line.createText(`Line ID ${lineID} is not allowed at this time.`),
+      client.createText(`Line ID ${lineID} is not allowed at this time.`),
     ]);
 
     return res.sendStatus(200);
