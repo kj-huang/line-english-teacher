@@ -64,6 +64,11 @@ app.get('/health', async function(req, res) {
 app.post('/webhook', async function(req, res) {
   const {events} = req.body;
 
+  //webhook verification event without source
+  if (events.length === 0) {
+    return res.sendStatus(200);
+  }
+
   let lineID = events[0].source.userId;
   const allowed = await isAllowed(lineID);
 
@@ -107,18 +112,26 @@ async function transcribe(filename, lineID) {
   });
 }
 
-async function chatCorrector (input){
-  const completion = await openai.createCompletion({
-    model: "gpt-3.5-turbo",
-    temperature: 0.8,
-    // prompt: "I want you to act as an English teacher, spelling corrector and improver. Answer the corrected and improved version of my text, in English. I want you to replace my simplified A0-level words and sentences with more beautiful and elegant, upper level English words and sentences. Keep the meaning same, but make them more literary. I want you to only reply the correction, the improvements and nothing else, do not write explanations, the text is: \n\n" + input 
-    prompt: "Correct this to standard English:\n\n" + input,
-  });
-  
-  console.log(completion.data.choices);
-  return completion.data.choices[0].text.trim();
-}
+async function chatCorrector(input) {
+  try {
+    const completion = await openai.createChatCompletion({
+      model: "gpt-3.5-turbo",
+      temperature: 0.8,
+      messages: [
+        { role: "system", content: "You are an English teacher and language corrector." },
+        { role: "user", content: `Please correct and improve the following sentence:\n\n${input}` }
+      ],
+    });
 
+    const correctedText = completion.data.choices[0]?.message?.content?.trim();
+    console.log(correctedText);
+    
+    return correctedText || "Error: Unable to get a correction.";
+  } catch (error) {
+    console.error("Error correcting sentence:", error);
+    return "An error occurred while trying to correct the sentence.";
+  }
+}
 async function sendVoiceMessage(text, lineID) {
   const filepath = path.join(__dirname + '/public/', 'return.wav');
   console.log(filepath)
@@ -148,21 +161,23 @@ app.use(function(err, req, res, next) {
 
 // Function that checks if a Line ID is allowed
 async function isAllowed(lineID) {
-  if (lineID === process.env.MY_ACCOUNT) {
-    return true;
-  }
+  // if (lineID === process.env.MY_ACCOUNT) {
+  //   return true;
+  // }
 
-  try {
-    // Try to consume a point from the rate limiter
-    await limiter.consume(lineID);
-    return true; // Line ID is allowed
-  } catch (err) {
-    if (err instanceof Error && err.message === 'Too many requests') {
-      // Line ID has exceeded the rate limit
-      return false;
-    }
-    throw err; // re-throw unexpected error
-  }
+  // try {
+  //   // Try to consume a point from the rate limiter
+  //   await limiter.consume(lineID);
+  //   return true; // Line ID is allowed
+  // } catch (err) {
+  //   if (err instanceof Error && err.message === 'Too many requests') {
+  //     // Line ID has exceeded the rate limit
+  //     return false;
+  //   }
+  //   throw err; // re-throw unexpected error
+  // }
+
+  return true;
 }
 
 module.exports = app;
