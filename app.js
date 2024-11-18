@@ -109,7 +109,7 @@ async function transcribe(filename, lineID) {
 
 async function chatCorrector (input){
   const completion = await openai.createCompletion({
-    model: "text-davinci-003",
+    model: "gpt-3.5-turbo",
     temperature: 0.8,
     // prompt: "I want you to act as an English teacher, spelling corrector and improver. Answer the corrected and improved version of my text, in English. I want you to replace my simplified A0-level words and sentences with more beautiful and elegant, upper level English words and sentences. Keep the meaning same, but make them more literary. I want you to only reply the correction, the improvements and nothing else, do not write explanations, the text is: \n\n" + input 
     prompt: "Correct this to standard English:\n\n" + input,
